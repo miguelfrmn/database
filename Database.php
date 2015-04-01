@@ -6,7 +6,7 @@
  * @license MIT
  * @license http://opensource.org/licenses/MIT
  */
-class DataBase {
+class Database {
 	
 	public $conn;
 	
