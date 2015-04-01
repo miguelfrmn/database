@@ -2,8 +2,7 @@
 /**
  * @name Database class
  * @author Miguel Fermín
- * @copyright 2013
- * @license MIT
+ * @copyright 2015
  * @license http://opensource.org/licenses/MIT
  */
 class Database {
@@ -16,18 +15,32 @@ class Database {
 	
 	static private $instance;
 	
-	public function __construct()
+	public function __construct($params = false)
 	{
-		$this->conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
-		mysqli_select_db($this->conn, DB_NAME);
+		if (empty($params) && defined('DB_HOST')) {
+			$params = array(
+				'host' 		=> DB_HOST,
+				'user' 		=> DB_USER,
+				'password' 	=> DB_PASSWORD,
+				'name' 		=> DB_NAME
+			);
+		}
+
+		if (empty($params)) {
+			throw new DatabaseParametersException('You must pass an array with the connection details');
+		}
+
+		$this->conn = mysqli_connect($params['host'], $params['user'], $params['password']);
+
+		mysqli_select_db($this->conn, $params['name']);
 		mysqli_set_charset($this->conn, 'utf8');
 	}
 	
-	static public function getInstance()
+	static public function getInstance($params = false)
 	{
 		if (!isset(self::$instance)) {
 			$name = __CLASS__;
-			self::$instance = new $name;
+			self::$instance = new $name($params);
 		}
 		return self::$instance;
 	}
@@ -288,3 +301,5 @@ class Database {
 	}
 
 }
+
+class DatabaseParametersException extends Exception {}
